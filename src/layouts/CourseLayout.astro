@@ -22,7 +22,7 @@ const { title, description = 'Conceptos, algoritmos y ejemplos guiados para el c
       </aside>
       <main id="contenido" class="course-main"><slot /></main>
     </div>
-    <footer class="course-footer"><span>Inteligencia artificial · Guía de estudio</span><a href={`${courseUrl}referencias/`}>Fuentes y atribuciones</a></footer>
+    <footer class="course-footer"><span>Inteligencia artificial</span><a href={`${courseUrl}referencias/`}>Fuentes y atribuciones</a></footer>
     <script>
       const contents = document.querySelector<HTMLDetailsElement>('.mobile-contents');
       const media = window.matchMedia('(max-width: 760px)');
