@@ -1,0 +1,44 @@
+---
+import CourseLayout from '../layouts/CourseLayout.astro';
+import SearchDemo from '../components/course/SearchDemo';
+import AgentDemo from '../components/course/AgentDemo';
+import HeuristicDemo from '../components/course/HeuristicDemo';
+import { chapters, courseUrl, lessonUrl } from '../course/content';
+import type { Chapter, Lesson } from '../course/content';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
+
+export function getStaticPaths() {
+  return chapters.flatMap(chapter => [
+    { params: { path: chapter.slug }, props: { chapter, lesson: null } },
+    ...chapter.lessons.map(lesson => ({ params: { path: `${chapter.slug}/${lesson.slug}` }, props: { chapter, lesson } })),
+  ]);
+}
+interface Props { chapter: Chapter; lesson: Lesson | null }
+const { chapter, lesson } = Astro.props;
+const flat = chapters.flatMap(c => c.lessons.map(l => ({ chapter: c, lesson: l })));
+const index = lesson ? flat.findIndex(item => item.chapter.slug === chapter.slug && item.lesson.slug === lesson.slug) : -1;
+const previous = flat[index - 1], next = flat[index + 1];
+const title = lesson?.title ?? chapter.title;
+const description = lesson?.lead ?? chapter.description;
+---
+<CourseLayout title={title} description={description} chapterSlug={chapter.slug} {...(lesson ? { lessonSlug: lesson.slug } : {})}>
+  <nav class="breadcrumbs" aria-label="Ubicación"><a href={courseUrl}>Curso</a><span>/</span>{lesson ? <><a href={`${courseUrl}${chapter.slug}/`}>{chapter.title}</a><span>/</span><span>{lesson.title}</span></> : <span>{chapter.title}</span>}</nav>
+  <div class="eyebrow">Capítulo {chapter.number}</div>
+  <h1>{title}</h1>
+  <p class="page-lead">{description}</p>
+  {lesson ? <>
+    <div class="reading-reference">Lectura: Notas §{lesson.notes} <span>·</span> AIMA §{lesson.aima}</div>
+    {lesson.sections.map(section => <section class="lesson-section"><h2>{section.title}</h2>{section.paragraphs.map(p => <p>{p}</p>)}{section.formula && <div class="course-formula" set:html={katex.renderToString(section.formula, { displayMode: true, throwOnError: true, output: 'htmlAndMathml' })} />}{section.table && <div class="table-scroll"><table><thead><tr>{section.table.headings.map(h => <th scope="col">{h}</th>)}</tr></thead><tbody>{section.table.rows.map(row => <tr>{row.map((cell, i) => i === 0 ? <th scope="row">{cell}</th> : <td>{cell}</td>)}</tr>)}</tbody></table></div>}{section.code && <pre class="static-code"><code>{section.code}</code></pre>}</section>)}
+    {lesson.algorithm && <SearchDemo algorithm={lesson.algorithm} scenario={lesson.scenario ?? 'a'} client:load />}
+    {lesson.agentDemo && <AgentDemo client:load />}
+    {lesson.heuristicDemo && <HeuristicDemo client:load />}
+    <section class="lesson-conclusion"><h2>Qué debes recordar</h2><p>{lesson.takeaway}</p></section>
+    <section class="comprehension"><h2>Para comprobarlo</h2><p>{lesson.question}</p><details><summary>Ver explicación</summary><p>{lesson.answer}</p></details></section>
+    <div class="source-note">Texto explicativo adaptado de las notas de Rubén Manrique y Daniel González, §{lesson.notes}. Referencia complementaria: <a href="https://aima.cs.berkeley.edu/global-index.html">AIMA, 4.ª edición global</a>, §{lesson.aima}. <a href={`${courseUrl}referencias/`}>Fuentes y convenciones</a>.</div>
+    <nav class="lesson-pagination" aria-label="Continuar lectura">{previous ? <a href={lessonUrl(previous.chapter, previous.lesson)}><small>Anterior</small><span>← {previous.lesson.title}</span></a> : <span />}{next ? <a href={lessonUrl(next.chapter, next.lesson)}><small>Siguiente</small><span>{next.lesson.title} →</span></a> : <a href={courseUrl}><small>Fin de este recorrido</small><span>Volver al índice →</span></a>}</nav>
+  </> : <>
+    <section class="lesson-section"><h2>En este capítulo</h2><ol class="chapter-contents">{chapter.lessons.map(lesson => <li><a href={lessonUrl(chapter, lesson)}>{lesson.title}</a><p>{lesson.lead}</p></li>)}</ol></section>
+    <a class="start-reading" href={lessonUrl(chapter, chapter.lessons[0]!)}>Comenzar el capítulo →</a>
+  </>}
+</CourseLayout>
