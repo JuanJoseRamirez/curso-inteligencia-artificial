@@ -43,17 +43,19 @@ export function pseudocode(algorithm: Algorithm): readonly CodeLine[] {
   const limited = algorithm === 'dls' || algorithm === 'iddfs';
   const cost = ['ucs', 'astar', 'weighted'].includes(algorithm);
   return [
-    ...(algorithm === 'iddfs' ? [{ id: 'restart', text: 'para límite = 0, 1, 2, …: reiniciar búsqueda limitada' }] : []),
-    { id: 'init', text: stack ? 'frontera ← pila con nodo inicial' : 'frontera ← cola con nodo inicial; registrar inicial' },
-    { id: 'pop', text: stack ? 'nodo ← extraer tope de la pila' : cost || algorithm === 'greedy' ? 'nodo ← extraer menor prioridad; ignorar entradas obsoletas' : 'nodo ← extraer primero de la cola' },
-    ...(algorithm !== 'bfs' ? [{ id: 'goal', text: 'si nodo es meta: devolver su camino' }] : []),
-    ...(limited ? [{ id: 'cutoff', text: 'si profundidad = límite: registrar corte si hay continuación' }] : []),
-    { id: 'expand', text: 'para cada hijo generado por las acciones del nodo:' },
-    { id: 'seen', text: stack ? '  descartar hijo si repite un estado de su camino' : cost ? '  descartar si no mejora el costo conocido del estado' : '  descartar hijo si su estado ya fue alcanzado' },
-    ...(algorithm === 'bfs' ? [{ id: 'goal', text: '  si hijo es meta: devolver su camino' }] : []),
-    { id: 'enqueue', text: stack ? '  apilar hijo; el último insertado saldrá primero' : cost ? '  actualizar mejor costo y padre; insertar o reabrir hijo' : '  registrar estado; insertar hijo al final o por prioridad' },
-    { id: 'finish', text: 'terminar expansión; repetir mientras haya frontera' },
-    { id: 'fail', text: limited ? 'devolver corte si hubo continuación pendiente; si no, fracaso' : 'si se vacía la frontera sin meta: devolver fracaso' },
+    ...(algorithm === 'iddfs' ? [{ id: 'restart', text: 'para límite = 0, 1, 2, …: ejecutar lo siguiente' }] : []),
+    { id: 'init', text: stack ? `frontera ← pila con raíz${limited ? '; huboCorte ← falso' : ''}` : cost ? 'frontera ← prioridad con raíz; mejor[inicial] ← 0' : algorithm === 'greedy' ? 'frontera ← prioridad por h con raíz; alcanzados ← {inicial}' : 'frontera ← cola con raíz; alcanzados ← {inicial}' },
+    { id: 'initial-goal', text: 'si inicial es meta: devolver camino vacío' },
+    { id: 'loop', text: 'mientras frontera no esté vacía:' },
+    { id: 'pop', text: stack ? '  nodo ← extraer tope' : cost ? '  nodo ← extraer mínimo; si g > mejor[estado]: continuar' : algorithm === 'greedy' ? '  nodo ← extraer mínimo h' : '  nodo ← extraer primero' },
+    ...(algorithm !== 'bfs' ? [{ id: 'goal', text: '  si nodo es meta: devolver su camino' }] : []),
+    ...(limited ? [{ id: 'cutoff', text: '  si profundidad = límite: actualizar huboCorte\n    si hay sucesores sin ciclos; continuar sin expandir' }] : []),
+    { id: 'expand', text: '  para cada hijo de nodo, en el orden dado:' },
+    { id: 'seen', text: stack ? '    si hijo repite estado del camino: continuar' : cost ? '    si g(hijo) ≥ mejor[estado del hijo]: continuar' : '    si estado del hijo ∈ alcanzados: continuar' },
+    ...(algorithm === 'bfs' ? [{ id: 'goal', text: '    si hijo es meta: devolver su camino' }] : []),
+    { id: 'enqueue', text: stack ? '    apilar hijo con su camino y costo' : cost ? '    mejor[estado] ← g(hijo); insertar hijo por prioridad' : algorithm === 'bfs' ? '    registrar estado; añadir hijo al final' : '    registrar estado; insertar hijo por h' },
+    { id: 'finish', text: '  fin para' },
+    { id: 'fail', text: algorithm === 'iddfs' ? 'si no huboCorte: devolver fracaso; si hubo, siguiente límite' : limited ? 'devolver corte si huboCorte; en otro caso fracaso' : 'devolver fracaso' },
   ];
 }
 
@@ -84,9 +86,9 @@ export function searchTrace(scenario: Scenario, algorithm: Algorithm, depthLimit
   };
   const run = (boundary: number | null): 'success' | 'failure' | 'cutoff' => {
     generated++;
-    frontier = [root]; expanded = []; reached = new Map([[root.state, 0]]); current = null; limit = boundary;
+    frontier = [root]; expanded = []; reached = stack ? new Map() : new Map([[root.state, 0]]); current = null; limit = boundary;
     record('init', `La frontera comienza con ${scenario.start}. Los corredores son dirigidos y sus números indican costos.`);
-    if (scenario.start === scenario.goal) { current = root; record('goal', 'El estado inicial ya es la meta. Camino vacío de acciones; costo 0.', 'success', root); return 'success'; }
+    if (scenario.start === scenario.goal) { current = root; record('initial-goal', 'El estado inicial ya es la meta. Camino vacío de acciones; costo 0.', 'success', root); return 'success'; }
     let cutoff = false;
     while (frontier.length) {
       if (costSearch || algorithm === 'greedy') frontier.sort((a, b) => priority(a) - priority(b));
@@ -114,7 +116,8 @@ export function searchTrace(scenario: Scenario, algorithm: Algorithm, depthLimit
           continue;
         }
         if (algorithm === 'bfs' && child.state === scenario.goal) { record('goal', `Al generar ${child.state} se reconoce la meta: ${child.path.join(' → ')}. ${child.depth} acciones; costo ${child.g}.`, 'success', child); return 'success'; }
-        reached.set(child.state, child.g); frontier.push(child);
+        if (!stack) reached.set(child.state, child.g);
+        frontier.push(child);
         if (costSearch || algorithm === 'greedy') frontier.sort((a, b) => priority(a) - priority(b));
         record('enqueue', costSearch && old !== undefined ? `Se mejora ${child.state}: costo ${old} → ${child.g}. Se conserva el nuevo padre y se permite reabrir el estado.` : `Se agrega ${child.state} ${stack ? 'al tope de la pila' : algorithm === 'bfs' ? 'al final de la cola' : 'a la cola de prioridad'}, con costo acumulado ${child.g}.`);
       }

@@ -42,6 +42,11 @@ describe('Search traces tied to the teaching scenarios', () => {
 });
 
 describe('Depth boundaries and finite termination', () => {
+  it('depth-first variants do not retain a global reached-state table', () => {
+    for (const algorithm of ['dfs', 'dls', 'iddfs'] as const) {
+      for (const step of searchTrace(depthTree, algorithm)) expect(step.reached).toEqual([]);
+    }
+  });
   it('cuts at 0 and 1; accepts the goal exactly at 2', () => {
     expect(last(searchTrace(depthTree, 'dls', 0)).status).toBe('cutoff');
     expect(last(searchTrace(depthTree, 'dls', 1)).status).toBe('cutoff');

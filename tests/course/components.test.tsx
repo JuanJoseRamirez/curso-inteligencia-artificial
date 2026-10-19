@@ -6,6 +6,18 @@ import HeuristicDemo from '../../src/components/course/HeuristicDemo';
 
 afterEach(cleanup);
 describe('Teaching interactions', () => {
+  it('shows the A* improvement and restores the previous frontier on reverse', () => {
+    const { container } = render(<SearchDemo algorithm="astar" scenario="b" />);
+    const next = screen.getByRole('button', { name: 'Siguiente paso' });
+    let guard = 100;
+    while (!container.querySelector('.step-explanation')?.textContent?.includes('costo 11 → 5') && guard--) fireEvent.click(next);
+    expect(guard).toBeGreaterThan(0);
+    expect(container.querySelector('[aria-current="step"]')?.textContent).toContain('mejor[estado]');
+    expect(container.querySelector('.frontier-strip')?.textContent).toContain('f=7');
+    fireEvent.click(screen.getByRole('button', { name: 'Anterior' }));
+    expect(container.querySelector('.frontier-strip')?.textContent).not.toContain('f=7');
+    expect(container.querySelector('.frontier-strip')?.textContent).toContain('f=13');
+  });
   it('steps, reverses and resets BFS without exposing a false solution', () => {
     render(<SearchDemo algorithm="bfs" scenario="a" />);
     const next = screen.getByRole('button', { name: 'Siguiente paso' });

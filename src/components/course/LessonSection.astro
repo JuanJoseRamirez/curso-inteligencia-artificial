@@ -1,0 +1,15 @@
+---
+import type { LessonSection } from '../../course/content';
+import ScenarioDiagram from './ScenarioDiagram';
+import katex from 'katex';
+interface Props { section: LessonSection }
+const { section } = Astro.props;
+---
+<section class="lesson-section">
+  <h2>{section.title}</h2>
+  {section.paragraphs.map(p => <p>{p}</p>)}
+  {section.figure && <ScenarioDiagram kind={section.figure} />}
+  {section.formula && <div class="course-formula" set:html={katex.renderToString(section.formula, { displayMode: true, throwOnError: true, output: 'htmlAndMathml' })} />}
+  {section.table && <div class="table-scroll"><table><thead><tr>{section.table.headings.map(h => <th scope="col">{h}</th>)}</tr></thead><tbody>{section.table.rows.map(row => <tr>{row.map((cell, i) => i === 0 ? <th scope="row">{cell}</th> : <td>{cell}</td>)}</tr>)}</tbody></table></div>}
+  {section.code && <pre class="static-code"><code>{section.code}</code></pre>}
+</section>
