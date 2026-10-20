@@ -12,7 +12,7 @@ describe('Teaching interactions', () => {
     let guard = 100;
     while (!container.querySelector('.step-explanation')?.textContent?.includes('costo 11 → 5') && guard--) fireEvent.click(next);
     expect(guard).toBeGreaterThan(0);
-    expect(container.querySelector('[aria-current="step"]')?.textContent).toContain('mejor[estado]');
+    expect(container.querySelector('[aria-current="step"]')?.textContent).toContain('mejor[hijo.estado]');
     expect(container.querySelector('.frontier-strip')?.textContent).toContain('f=7');
     fireEvent.click(screen.getByRole('button', { name: 'Anterior' }));
     expect(container.querySelector('.frontier-strip')?.textContent).not.toContain('f=7');

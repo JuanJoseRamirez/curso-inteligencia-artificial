@@ -42,20 +42,34 @@ export function pseudocode(algorithm: Algorithm): readonly CodeLine[] {
   const stack = ['dfs', 'dls', 'iddfs'].includes(algorithm);
   const limited = algorithm === 'dls' || algorithm === 'iddfs';
   const cost = ['ucs', 'astar', 'weighted'].includes(algorithm);
+  const procedures: Record<Algorithm, string> = { bfs: 'BUSQUEDA-ANCHURA', ucs: 'COSTO-UNIFORME', dfs: 'BUSQUEDA-PROFUNDIDAD', dls: 'BUSQUEDA-LIMITADA', iddfs: 'BUSQUEDA-LIMITADA', greedy: 'BUSQUEDA-AVIDA', astar: 'A-ESTRELLA', weighted: 'A-ESTRELLA-PONDERADA' };
+  const name = `${procedures[algorithm]}(problema${limited ? ', límite' : ''})`;
+  const evaluation = algorithm === 'ucs' ? 'g(n)' : algorithm === 'greedy' ? 'h(n)' : algorithm === 'weighted' ? 'g(n)+2h(n)' : 'g(n)+h(n)';
   return [
-    ...(algorithm === 'iddfs' ? [{ id: 'restart', text: 'para límite = 0, 1, 2, …: ejecutar lo siguiente' }] : []),
-    { id: 'init', text: stack ? `frontera ← pila con raíz${limited ? '; huboCorte ← falso' : ''}` : cost ? 'frontera ← prioridad con raíz; mejor[inicial] ← 0' : algorithm === 'greedy' ? 'frontera ← prioridad por h con raíz; alcanzados ← {inicial}' : 'frontera ← cola con raíz; alcanzados ← {inicial}' },
-    { id: 'initial-goal', text: 'si inicial es meta: devolver camino vacío' },
-    { id: 'loop', text: 'mientras frontera no esté vacía:' },
-    { id: 'pop', text: stack ? '  nodo ← extraer tope' : cost ? '  nodo ← extraer mínimo; si g > mejor[estado]: continuar' : algorithm === 'greedy' ? '  nodo ← extraer mínimo h' : '  nodo ← extraer primero' },
-    ...(algorithm !== 'bfs' ? [{ id: 'goal', text: '  si nodo es meta: devolver su camino' }] : []),
-    ...(limited ? [{ id: 'cutoff', text: '  si profundidad = límite: actualizar huboCorte\n    si hay sucesores sin ciclos; continuar sin expandir' }] : []),
-    { id: 'expand', text: '  para cada hijo de nodo, en el orden dado:' },
-    { id: 'seen', text: stack ? '    si hijo repite estado del camino: continuar' : cost ? '    si g(hijo) ≥ mejor[estado del hijo]: continuar' : '    si estado del hijo ∈ alcanzados: continuar' },
-    ...(algorithm === 'bfs' ? [{ id: 'goal', text: '    si hijo es meta: devolver su camino' }] : []),
-    { id: 'enqueue', text: stack ? '    apilar hijo con su camino y costo' : cost ? '    mejor[estado] ← g(hijo); insertar hijo por prioridad' : algorithm === 'bfs' ? '    registrar estado; añadir hijo al final' : '    registrar estado; insertar hijo por h' },
-    { id: 'finish', text: '  fin para' },
-    { id: 'fail', text: algorithm === 'iddfs' ? 'si no huboCorte: devolver fracaso; si hubo, siguiente límite' : limited ? 'devolver corte si huboCorte; en otro caso fracaso' : 'devolver fracaso' },
+    ...(algorithm === 'iddfs' ? [
+      { id: 'ids-header', text: 'función PROFUNDIZACION-ITERATIVA(problema):' },
+      { id: 'restart', text: '  para límite = 0, 1, 2, ...:' },
+      { id: 'ids-call', text: '    resultado ← BUSQUEDA-LIMITADA(problema, límite)' },
+      { id: 'ids-return', text: '    si resultado no es CORTE: devolver resultado' },
+      { id: 'ids-end', text: '  fin para\n' },
+    ] : []),
+    { id: 'header', text: `función ${name}:` },
+    { id: 'start', text: '  inicial ← problema.inicial' },
+    ...(!stack && algorithm !== 'bfs' ? [{ id: 'priority', text: `  prioridad(n) = $${evaluation}$; empates por inserción` }] : []),
+    { id: 'root', text: '  raíz ← nodo(inicial, camino=[inicial], costo=0, profundidad=0)' },
+    { id: 'init', text: stack ? `  frontera ← pila con raíz${limited ? '\n  huboCorte ← falso' : ''}` : cost ? '  mejor ← mapa con valor por defecto infinito\n  mejor[inicial] ← 0; frontera ← cola de prioridad con raíz' : algorithm === 'greedy' ? '  frontera ← cola de prioridad con raíz; alcanzados ← {inicial}' : '  frontera ← cola FIFO con raíz; alcanzados ← {inicial}' },
+    { id: 'initial-goal', text: '  si problema.ES-META(inicial): devolver raíz.camino' },
+    { id: 'loop', text: '  mientras frontera no esté vacía:' },
+    { id: 'pop', text: stack ? '    nodo ← extraer tope de frontera' : cost ? '    nodo ← extraer menor prioridad de frontera\n    si nodo.costo > mejor[nodo.estado]: continuar' : algorithm === 'greedy' ? '    nodo ← extraer menor prioridad de frontera' : '    nodo ← extraer primero de frontera' },
+    ...(algorithm !== 'bfs' ? [{ id: 'goal', text: '    si problema.ES-META(nodo.estado): devolver nodo.camino' }] : []),
+    ...(limited ? [{ id: 'cutoff', text: '    si nodo.profundidad = límite:\n      si existe sucesor fuera de nodo.camino:\n        huboCorte ← verdadero\n      continuar' }] : []),
+    { id: 'expand', text: '    para cada hijo en EXPANDIR(problema, nodo), en el orden dado:' },
+    { id: 'seen', text: stack ? '      si hijo.estado ∈ nodo.camino: continuar' : cost ? '      si hijo.costo ≥ mejor[hijo.estado]: continuar' : '      si hijo.estado ∈ alcanzados: continuar' },
+    ...(algorithm === 'bfs' ? [{ id: 'goal', text: '      si problema.ES-META(hijo.estado): devolver hijo.camino' }] : []),
+    { id: 'enqueue', text: stack ? '      apilar hijo en frontera' : cost ? '      mejor[hijo.estado] ← hijo.costo\n      insertar hijo en frontera por prioridad' : algorithm === 'bfs' ? '      añadir hijo.estado a alcanzados\n      añadir hijo al final de frontera' : '      añadir hijo.estado a alcanzados\n      insertar hijo en frontera por prioridad' },
+    { id: 'finish', text: '    fin para' },
+    { id: 'end-loop', text: '  fin mientras' },
+    { id: 'fail', text: limited ? '  si huboCorte: devolver CORTE\n  devolver FRACASO' : '  devolver FRACASO' },
   ];
 }
 

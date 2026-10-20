@@ -53,3 +53,15 @@ El usuario solicita presentar el contenido con una exposición cercana a las not
 - Los resultados concretos de BFS y DFS se incorporan a la exposición del ejemplo, en lugar de depender de un cierre de estudio.
 - La portada y los índices se presentan como contenido del curso; se eliminan las instrucciones generales de estudio y los bloques de objetivos por capítulo.
 - Se conservan los supuestos de corrección, las referencias, KaTeX y las simulaciones paso a paso. No se realiza publicación como parte de este ajuste.
+
+## Revisión de pseudocódigos — 20 de octubre de 2026
+
+Contraste con notas §1.4.5, listings 2.1–2.5, §2.3.6, listing 3.1 y §3.3–3.6; AIMA global, figuras 2.8 (p. 67), 3.7 (p. 91), 3.9 (p. 95), 3.12 (p. 99), 3.14 (p. 101) y §3.5.
+
+Se explicitan firmas, raíz, estructuras, selección, bucles y retornos. UCS/A* actualizan `mejor[hijo.estado]` y permiten mejoras posteriores a una expansión. La iterativa aparece como una función que llama a la limitada; la limitada distingue claramente el corte, las hojas agotadas y el final de la búsqueda. El estado del modelo del agente es persistente y cada llamada devuelve una única acción.
+
+La bidireccional se desarrolla como una variante por niveles para costos unitarios. Recibe sucesores y predecesores, registra distancias y enlaces y reconstruye una secuencia en el sentido original sin duplicar el encuentro. No se presenta como una transcripción del mejor primero bidireccional de AIMA para costos generales.
+
+Adaptaciones deliberadas: la limitada impide generar descendientes fuera del límite, en lugar de copiar literalmente la comprobación posterior a la meta de las fuentes; Greedy conserva la primera llegada por estado con heurística fija, conforme al efecto del listing 3.1 de las notas; el agente con modelo supone limpieza determinista y ausencia de nueva suciedad. Los caminos se muestran como secuencias de estados: `[inicial]` equivale a cero acciones cuando el inicio es meta. Las pruebas del motor no constituyen por sí solas una demostración formal del pseudocódigo.
+
+Verificación adicional: 32 pruebas del proyecto aprobadas, con renderizado KaTeX de todos los pseudocódigos. Una transcripción ejecutable independiente del diseño bidireccional se contrastó con BFS en los 4.096 grafos dirigidos sin lazos de cuatro estados y todos sus pares inicio/meta (65.536 casos), verificando existencia, longitud mínima y sentido de cada transición. Esta comprobación de casos pequeños complementa la revisión del diseño; no es una prueba formal general ni una simulación bidireccional incorporada a la interfaz.

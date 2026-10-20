@@ -3,6 +3,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import katex from 'katex';
 import MathText, { mathCode } from '../../src/components/course/MathText';
 import { chapters } from '../../src/course/content';
+import { pseudocode } from '../../src/course/algorithms/search';
+import { agentPseudocode } from '../../src/course/algorithms/teachingCode';
 
 describe('Mathematical notation', () => {
   it('renders inline TeX accessibly while escaping ordinary text', () => {
@@ -31,6 +33,16 @@ describe('Mathematical notation', () => {
           expect(section.formula).not.toMatch(/[\x00-\x1f]/);
         }
       }
+    }
+  });
+  it('renders every search and agent pseudocode with valid inline mathematics', () => {
+    const lines = ['bfs', 'ucs', 'dfs', 'dls', 'iddfs', 'greedy', 'astar', 'weighted'].flatMap(algorithm =>
+      pseudocode(algorithm as Parameters<typeof pseudocode>[0]).map(line => line.text));
+    lines.push(agentPseudocode(false), agentPseudocode(true));
+    for (const line of lines) {
+      const html = renderToStaticMarkup(<MathText text={mathCode(line)} />);
+      expect(html).not.toContain('katex-error');
+      expect(html).not.toContain('$');
     }
   });
 });
