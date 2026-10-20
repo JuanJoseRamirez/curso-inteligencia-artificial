@@ -1,6 +1,7 @@
 ---
 import { chapters, courseUrl, lessonUrl } from '../course/content';
 import '../styles/course.css';
+import 'katex/dist/katex.min.css';
 interface Props { title: string; description?: string; chapterSlug?: string; lessonSlug?: string }
 const { title, description = 'Conceptos, algoritmos y ejemplos guiados para el curso de Inteligencia Artificial.', chapterSlug, lessonSlug } = Astro.props;
 ---

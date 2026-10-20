@@ -4,9 +4,9 @@ import SearchDemo from '../components/course/SearchDemo';
 import AgentDemo from '../components/course/AgentDemo';
 import HeuristicDemo from '../components/course/HeuristicDemo';
 import LessonSection from '../components/course/LessonSection.astro';
+import MathText from '../components/course/MathText';
 import { chapters, courseUrl, lessonUrl } from '../course/content';
 import type { Chapter, Lesson } from '../course/content';
-import 'katex/dist/katex.min.css';
 
 export function getStaticPaths() {
   return chapters.flatMap(chapter => [
@@ -26,7 +26,7 @@ const description = lesson?.lead ?? chapter.description;
   <nav class="breadcrumbs" aria-label="Ubicación"><a href={courseUrl}>Curso</a><span>/</span>{lesson ? <><a href={`${courseUrl}${chapter.slug}/`}>{chapter.title}</a><span>/</span><span>{lesson.title}</span></> : <span>{chapter.title}</span>}</nav>
   <div class="eyebrow">Capítulo {chapter.number}</div>
   <h1>{title}</h1>
-  <p class="page-lead">{description}</p>
+  <p class="page-lead"><MathText text={description} /></p>
   {lesson ? <>
     <div class="reading-reference">Lectura: Notas §{lesson.notes} <span>·</span> AIMA §{lesson.aima}</div>
     {lesson.sections.map((section, i) => <>
@@ -37,13 +37,13 @@ const description = lesson?.lead ?? chapter.description;
         {lesson.heuristicDemo && <HeuristicDemo client:load />}
       </>}
     </>)}
-    <section class="lesson-conclusion"><h2>Qué debes recordar</h2><p>{lesson.takeaway}</p></section>
-    <section class="comprehension"><h2>Comprueba tu razonamiento</h2><p>{lesson.question}</p><details><summary>Comparar con una solución razonada</summary><p>{lesson.answer}</p></details></section>
+    <section class="lesson-conclusion"><h2>Qué debes recordar</h2><p><MathText text={lesson.takeaway} /></p></section>
+    <section class="comprehension"><h2>Comprueba tu razonamiento</h2><p><MathText text={lesson.question} /></p><details><summary>Comparar con una solución razonada</summary><p><MathText text={lesson.answer} /></p></details></section>
     <div class="source-note">Texto explicativo adaptado de las notas de Rubén Manrique y Daniel González, §{lesson.notes}. Referencia complementaria: <a href="https://aima.cs.berkeley.edu/global-index.html">AIMA, 4.ª edición global</a>, §{lesson.aima}. <a href={`${courseUrl}referencias/`}>Bibliografía y fuentes</a>.</div>
     <nav class="lesson-pagination" aria-label="Continuar lectura">{previous ? <a href={lessonUrl(previous.chapter, previous.lesson)}><small>Anterior</small><span>← {previous.lesson.title}</span></a> : <span />}{next ? <a href={lessonUrl(next.chapter, next.lesson)}><small>Siguiente</small><span>{next.lesson.title} →</span></a> : <a href={courseUrl}><small>Fin de este recorrido</small><span>Volver al índice →</span></a>}</nav>
   </> : <>
     <section class="lesson-section"><h2>Qué aprenderás</h2><ul>{chapter.outcomes.map(outcome => <li>{outcome}</li>)}</ul><p><strong>Antes de empezar.</strong> {chapter.prerequisite}</p></section>
-    <section class="lesson-section"><h2>En este capítulo</h2><ol class="chapter-contents">{chapter.lessons.map(lesson => <li><a href={lessonUrl(chapter, lesson)}>{lesson.title}</a><p>{lesson.lead}</p></li>)}</ol></section>
+    <section class="lesson-section"><h2>En este capítulo</h2><ol class="chapter-contents">{chapter.lessons.map(lesson => <li><a href={lessonUrl(chapter, lesson)}>{lesson.title}</a><p><MathText text={lesson.lead} /></p></li>)}</ol></section>
     <a class="start-reading" href={lessonUrl(chapter, chapter.lessons[0]!)}>Comenzar el capítulo →</a>
   </>}
 </CourseLayout>
