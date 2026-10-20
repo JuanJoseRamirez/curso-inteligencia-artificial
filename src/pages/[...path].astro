@@ -37,13 +37,11 @@ const description = lesson?.lead ?? chapter.description;
         {lesson.heuristicDemo && <HeuristicDemo client:load />}
       </>}
     </>)}
-    <section class="lesson-conclusion"><h2>Qué debes recordar</h2><p><MathText text={lesson.takeaway} /></p></section>
-    <section class="comprehension"><h2>Comprueba tu razonamiento</h2><p><MathText text={lesson.question} /></p><details><summary>Comparar con una solución razonada</summary><p><MathText text={lesson.answer} /></p></details></section>
-    <div class="source-note">Texto explicativo adaptado de las notas de Rubén Manrique y Daniel González, §{lesson.notes}. Referencia complementaria: <a href="https://aima.cs.berkeley.edu/global-index.html">AIMA, 4.ª edición global</a>, §{lesson.aima}. <a href={`${courseUrl}referencias/`}>Bibliografía y fuentes</a>.</div>
+    {lesson.exercise && <section class="comprehension"><h2>Ejercicio</h2><p><MathText text={lesson.exercise.question} /></p><details><summary>Solución</summary><p><MathText text={lesson.exercise.answer} /></p></details></section>}
+    <div class="source-note">Referencias: notas de Rubén Manrique y Daniel González, §{lesson.notes}; <a href="https://aima.cs.berkeley.edu/global-index.html">AIMA, 4.ª edición global</a>, §{lesson.aima}. <a href={`${courseUrl}referencias/`}>Bibliografía y fuentes</a>.</div>
     <nav class="lesson-pagination" aria-label="Continuar lectura">{previous ? <a href={lessonUrl(previous.chapter, previous.lesson)}><small>Anterior</small><span>← {previous.lesson.title}</span></a> : <span />}{next ? <a href={lessonUrl(next.chapter, next.lesson)}><small>Siguiente</small><span>{next.lesson.title} →</span></a> : <a href={courseUrl}><small>Fin de este recorrido</small><span>Volver al índice →</span></a>}</nav>
   </> : <>
-    <section class="lesson-section"><h2>Qué aprenderás</h2><ul>{chapter.outcomes.map(outcome => <li>{outcome}</li>)}</ul><p><strong>Antes de empezar.</strong> {chapter.prerequisite}</p></section>
-    <section class="lesson-section"><h2>En este capítulo</h2><ol class="chapter-contents">{chapter.lessons.map(lesson => <li><a href={lessonUrl(chapter, lesson)}>{lesson.title}</a><p><MathText text={lesson.lead} /></p></li>)}</ol></section>
-    <a class="start-reading" href={lessonUrl(chapter, chapter.lessons[0]!)}>Comenzar el capítulo →</a>
+    <section class="lesson-section"><h2>Contenido</h2><ol class="chapter-contents">{chapter.lessons.map(lesson => <li><a href={lessonUrl(chapter, lesson)}>{lesson.title}</a><p><MathText text={lesson.lead} /></p></li>)}</ol></section>
+    <p class="chapter-prerequisite"><strong>Conocimientos previos.</strong> {chapter.prerequisite}</p>
   </>}
 </CourseLayout>

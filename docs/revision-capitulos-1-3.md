@@ -42,3 +42,14 @@ Los grafos iniciales tienen descripción textual de corredores. Se incorpora una
 Verificados: tipos sin errores, 29 pruebas aprobadas (100 % de cobertura en los dos motores), compilación de las 28 páginas y sus fórmulas, enlaces y recursos internos válidos. Hay pruebas específicas de límites, ciclos, reaperturas, entradas obsoletas y retroceso de una mejora de A*.
 
 El navegador integrado no accedió al servidor local (conexión rechazada y luego tiempo agotado). La revisión visual de las páginas modificadas en escritorio y móvil queda pendiente; la compilación y las pruebas de DOM no sustituyen esa inspección. Esta revisión tampoco equivale a aprobación académica por el profesor.
+
+## Ajuste editorial — 20 de octubre de 2026
+
+El usuario solicita presentar el contenido con una exposición cercana a las notas, conservando el diseño. Este ajuste sustituye el enfoque de guía dirigida descrito arriba:
+
+- Se mantiene la secuencia de los tres capítulos y los ejemplos vinculados con sus definiciones y algoritmos.
+- Se reescriben introducciones y títulos con una exposición directa de conceptos, propiedades y condiciones de aplicación.
+- Se eliminan las conclusiones obligatorias y las preguntas repetidas en las 23 páginas. Se conservan nueve ejercicios seleccionados, con solución desplegable: PEAS, entornos, arquitecturas, formulación, UCS, profundización iterativa, A*, propiedades y diseño de heurísticas.
+- Los resultados concretos de BFS y DFS se incorporan a la exposición del ejemplo, en lugar de depender de un cierre de estudio.
+- La portada y los índices se presentan como contenido del curso; se eliminan las instrucciones generales de estudio y los bloques de objetivos por capítulo.
+- Se conservan los supuestos de corrección, las referencias, KaTeX y las simulaciones paso a paso. No se realiza publicación como parte de este ajuste.

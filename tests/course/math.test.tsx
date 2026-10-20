@@ -20,7 +20,8 @@ describe('Mathematical notation', () => {
       expect(() => renderToStaticMarkup(<MathText text={text} />)).not.toThrow();
     };
     for (const chapter of chapters) for (const lesson of chapter.lessons) {
-      [lesson.lead, lesson.question, lesson.answer, lesson.takeaway].forEach(verify);
+      verify(lesson.lead);
+      if (lesson.exercise) [lesson.exercise.question, lesson.exercise.answer].forEach(verify);
       for (const section of lesson.sections) {
         [section.title, ...section.paragraphs].forEach(verify);
         if (section.table) [...section.table.headings, ...section.table.rows.flat()].forEach(verify);

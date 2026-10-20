@@ -23,7 +23,7 @@ export default function SearchDemo({ algorithm: initialAlgorithm, scenario: scen
   const changeAlgorithm = (value: Algorithm) => { setIndex(0); setAlgorithm(value); };
   const priorityRule = algorithm === 'ucs' ? 'g' : algorithm === 'greedy' ? 'h' : algorithm === 'weighted' ? 'g + 2h' : 'g + h';
   return <section className="search-demo" aria-label={`Ejemplo paso a paso de ${algorithmNames[algorithm]}`}>
-    <div className="section-caption"><span>Ejemplo guiado</span><span>{scenario.id === 'almacen-b' ? 'Notas · Figura 3.1' : scenarioId === 'tree' ? 'Notas · Figura 2.8' : 'Notas · Figura 2.1'}</span></div>
+    <div className="section-caption"><span>Ejemplo · Ejecución del algoritmo</span><span>{scenario.id === 'almacen-b' ? 'Notas · Figura 3.1' : scenarioId === 'tree' ? 'Notas · Figura 2.8' : 'Notas · Figura 2.1'}</span></div>
     <h2>{scenario.title}</h2>
     <p className="demo-context">{scenarioId === 'tree' ? 'Meta: 7. La raíz tiene profundidad 0. Se apilan los hijos en el orden mostrado; sale primero el último.' : 'El robot parte de O y debe llegar a M. Las flechas son corredores; los números indican costos de tránsito.'}</p>
     {initialAlgorithm === 'iddfs' && <div className="demo-options"><label>Procedimiento <select value={algorithm} onChange={e => changeAlgorithm(e.target.value as Algorithm)}><option value="iddfs">Profundización iterativa</option><option value="dls">Búsqueda limitada</option></select></label>{algorithm === 'dls' && <label>Límite <select value={limit} onChange={e => { setIndex(0); setLimit(Number(e.target.value)); }}>{[0, 1, 2, 3].map(n => <option key={n} value={n}>{n}</option>)}</select></label>}</div>}

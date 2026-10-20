@@ -2,10 +2,9 @@
 import CourseLayout from '../layouts/CourseLayout.astro';
 import { chapters, courseUrl, lessonUrl } from '../course/content';
 ---
-<CourseLayout title="Guía del curso">
-  <div class="eyebrow">Guía del curso</div>
+<CourseLayout title="Contenido del curso">
+  <div class="eyebrow">Contenido del curso</div>
   <h1>Inteligencia artificial</h1>
   <p class="page-lead">Conceptos, algoritmos y ejemplos del curso.</p>
   <div class="chapter-index">{chapters.map(chapter => <section class="chapter-preview"><span class="eyebrow">Capítulo {chapter.number}</span><h2><a href={`${courseUrl}${chapter.slug}/`}>{chapter.title}</a></h2><p>{chapter.description}</p><ul class="lesson-links">{chapter.lessons.map(lesson => <li><a href={lessonUrl(chapter, lesson)}>{lesson.title}</a></li>)}</ul></section>)}</div>
-  <section class="reading-note"><h2>Cómo usar los ejemplos</h2><p>Lee el criterio de selección antes de avanzar. En cada paso, comprueba qué cambia en la frontera y qué instrucción del pseudocódigo lo explica. Usa «Anterior» para volver a una decisión y «Reiniciar» para recorrer el ejemplo desde el comienzo.</p><p>Las páginas de concepto no requieren una simulación: una definición, una tabla o un ejemplo resuelto pueden ser suficientes.</p></section>
 </CourseLayout>
